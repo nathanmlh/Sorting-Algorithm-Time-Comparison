@@ -5,12 +5,12 @@
 NumberList::NumberList() {
 	srand(time(NULL));
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // retrieves handle for output
-}
 
-NumberList::NumberList(std::vector<int> vec) {
-	numbers = vec;
-	srand(time(NULL));
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // retrieves handle for output
+	numbers = initialize(SIZE_OF_RECTS); // initialize numbers with size of (SIZE_OF_RECTS)
+
+	SDL_Init(SDL_INIT_EVERYTHING);
+	window = SDL_CreateWindow("Sorting Algorithm Time Comparisons", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 }
 
 std::vector<int> NumberList::initialize(int size) {
@@ -37,7 +37,7 @@ void NumberList::printVector() {
 	std::cout << std::endl << std::endl;
 }
 
-std::vector<int> NumberList::shuffle() {
+std::vector<int> NumberList::shuffleNumbers() {
 	auto start = std::chrono::system_clock::now();
 	SetConsoleTextAttribute(hConsole, 15);
 
@@ -77,6 +77,7 @@ std::vector<int> NumberList::selectionSort() {
 			}
 		}
 		std::swap(numbers[selection], numbers[i]);
+		fillScreenWithRects(20); // displays to screen
 	}
 
 	auto end = std::chrono::system_clock::now();
@@ -102,6 +103,7 @@ std::vector<int> NumberList::insertionSort() {
 		}
 
 		numbers[position] = valueToInsert;
+		fillScreenWithRects(10);
 	}
 
 	auto end = std::chrono::system_clock::now();
@@ -123,6 +125,7 @@ std::vector<int> NumberList::bubbleSort() {
 			if (numbers[j] > numbers[j + 1]) {
 				std::swap(numbers[j], numbers[j + 1]);
 				swapped = true;
+				fillScreenWithRects(0.1);
 			}
 		}
 		if (!swapped)
@@ -172,6 +175,32 @@ std::vector<int> NumberList::bubbleSort() {
 //	return (i + 1);
 //}
 
+void NumberList::fillScreenWithRects(int time) {
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // black
+	SDL_RenderClear(renderer); // fill screen with black
+
+	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255); // pink
+
+	for (int i = 0; i < (SIZE_OF_RECTS); i++) { 
+		rects[i].h = (numbers[i]); // init height with height values of numbers
+		rects[i].w = 2; // init width
+		rects[i].x = i * 2; // init x pos
+		rects[i].y = (SCREEN_HEIGHT - rects[i].h); // init y pos
+		SDL_RenderFillRect(renderer, &rects[i]); // sets specific color of rect
+	}
+
+	SDL_RenderDrawRects(renderer, rects, SIZE_OF_RECTS);
+
+	SDL_RenderPresent(renderer);
+	SDL_Delay(time); // wait
+}
+
+void NumberList::printRectHeights() {
+	for (int i = 0; i < SIZE_OF_RECTS; i++) {
+		std::cout << rects[i].h << std::endl;
+	}
+}
+
 NumberList::~NumberList() {
-	numbers.clear();
+	numbers.clear(); // clears vector
 }
